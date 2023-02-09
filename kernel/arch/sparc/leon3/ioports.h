@@ -1,0 +1,60 @@
+/*
+ *                               POK header
+ *
+ * The following file is a part of the POK project. Any modification should
+ * be made according to the POK licence. You CANNOT use this file or a part
+ * of a file for your own project.
+ *
+ * For more information on the POK licence, please see our LICENCE FILE
+ *
+ * Please follow the coding guidelines described in doc/CODING_GUIDELINES
+ *
+ *                                      Copyright (c) 2007-2022 POK team
+ */
+
+/**
+ * @file
+ * @author Fabien Chouteau
+ * @brief  SPARC "ioports".
+ * Use MMU bypass to access IO memory.
+ */
+
+#ifndef __POK_SPARC_LEON3_IOPORTS_H__
+#define __POK_SPARC_LEON3_IOPORTS_H__
+
+#include "sparc_conf.h"
+#include <types.h>
+
+static inline void outb(uint32_t addr, uint8_t data) {
+  asm volatile("sta %0, [%1] %2;\n"
+               : /* no output */
+               : "r"(data), "r"(addr), "i"(ASI_MMU_BYPASS)
+               : "memory");
+}
+
+static inline void outw(uint32_t addr, uint32_t data) {
+  asm volatile("sta %0, [%1] %2;\n"
+               : /* no output */
+               : "r"(data), "r"(addr), "i"(ASI_MMU_BYPASS)
+               : "memory");
+}
+
+static inline uint8_t inb(uint32_t addr) {
+  uint8_t value = 0;
+  asm volatile("lduba [%1] %2, %0;\n"
+               : "=r"(value)
+               : "r"(addr), "i"(ASI_MMU_BYPASS)
+               : "memory");
+  return value;
+}
+
+static inline uint32_t inw(uint32_t addr) {
+  uint32_t value = 0;
+  asm volatile("lda [%1] %2, %0;\n"
+               : "=r"(value)
+               : "r"(addr), "i"(ASI_MMU_BYPASS)
+               : "memory");
+  return value;
+}
+
+#endif /* __POK_SPARC_LEON3_IOPORTS_H__ */
